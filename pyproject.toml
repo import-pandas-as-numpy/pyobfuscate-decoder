@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "pyobfuscate-decoder"
+version = "0.1.0"
+description = "Attempts to deoobfuscate PyObfuscate obfuscation."
+authors = ["128343390+import-pandas-as-numpy@users.noreply.github.com <128343390+import-pandas-as-numpy@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "pyobfuscate_decoder"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
