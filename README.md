@@ -3,7 +3,7 @@
 This decoder operates with no additional dependancies beyond the standard library. As such, installing the script can be as simple as cloning the github repository and invoking the script...
 ```
 git clone https://github.com/import-pandas-as-numpy/pyobfuscate-decoder.git
-python pyobfuscate_decoder.py somefile.py
+python3 pyobfuscate_decoder.py somefile.py
 ```
 In the future, subsequent versions will be made available on PyPI.
 
