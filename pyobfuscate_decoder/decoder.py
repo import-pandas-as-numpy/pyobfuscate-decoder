@@ -1,18 +1,37 @@
 import base64
 import zlib
-import re
 import ast
 from pathlib import Path
 import argparse
+import os
 
-def extract_payload(filename: Path) -> str:
-    bytes_regex = re.compile(r"\(b'.*'\)")
-    with open(filename, 'r') as f:
-        payload = f.read()
-    return re.search(bytes_regex, payload)[0]
 
-def prepare_layer(payload: str) -> str:
-    return ast.literal_eval(payload)
+class ByteStringFinder(ast.NodeVisitor):
+    def __init__(self):
+        self.results = []
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, bytes):
+            self.results.append(node.value)
+
+def load_file(file_path: Path) -> str:
+    with open(file_path) as f:
+        return f.read()
+    
+def extract_payload(surface_code: str) -> bytes:
+    try:
+        tree = ast.parse(surface_code)
+    except SyntaxError as exc:
+        print(f'FATAL {exc}. Input is not valid Python.')
+    bsf = ByteStringFinder()
+    bsf.visit(tree)
+    if len(bsf.results) > 1:
+        print('Multiple byte strings found.')
+        os.exit()
+    elif not bsf.results:
+        print('No valid byte strings found in surface file.')
+    else:
+        return bsf.results[0]
 
 def decode_layer(payload: str) -> str:
     reverse = payload[::-1]
@@ -56,9 +75,9 @@ def main() -> None:
     )
     parser.add_argument('filename')
     args = parser.parse_args()
-    extracted_payload = extract_payload(args.filename)
-    prepared_payload = prepare_layer(extracted_payload)
-    decoded_layer = decode_layer(prepared_payload)
+    mal_file = load_file(args.filename)
+    extracted_payload = extract_payload(mal_file)
+    decoded_layer = decode_layer(extracted_payload)
     while True:
         print(decoded_layer[0:200])
         user_in = input("Is this your code?(Y/N/Q) ")
